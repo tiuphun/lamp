@@ -33,7 +33,12 @@ if ($_SESSION['usertype'] === 'admin') {
         echo '<tr>';
         echo '<td>' . $user['username'] . '</td>';
         echo '<td>' . $user['password'] . '</td>';
-        echo '<td><a href="edit_user.php?id=' . $user['id'] . '">Edit</a> | <a href="delete_user.php?id=' . $user['id'] . '">Delete</a></td>';
+        echo '<td><button onclick="location.href=\'edit_user.php?id=' . $user['id'] . '\'" type="button">Edit</button>  ';
+        echo '<form action="delete_user.php" method="POST" style="display: inline;">';
+        echo '<input type="hidden" name="user_id" value="' . $user['id'] . '">';
+        echo '<button type="submit" onclick="return confirm(\'Are you sure you want to delete this user?\')">Delete</button>';
+        echo '</form>';
+        echo '</td>';        
         echo '</tr>';
     }
     echo '</table>';
