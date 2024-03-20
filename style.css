@@ -1,0 +1,167 @@
+body {
+    font-family: "Roboto", "Poppins", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+
+nav {
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; 
+}
+
+
+
+button {
+    font-family: inherit;
+    
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+
+    justify-content: center; 
+    align-items: center;
+}
+.nav-buttons {
+    margin-left: 10px;
+}
+
+.back-button {
+    background-color: #4285F4;
+    color: white;
+}
+.login-button {
+    color: black;
+    margin-right: 10px;
+    display: flex;
+}
+
+.register-button {
+    background-color: #4285F4;
+    color: white;
+    display: flex;
+    
+}
+
+.logout-button {
+    background-color: #DB4437;
+    color: white;
+}
+
+.submit-button {
+    background-color: #34a853;
+    color: white;
+    /* text-align: center !important */
+    display: inline-flex; 
+    justify-content: center;
+    align-items: center;
+    width: auto;
+}
+
+.admin-button {
+    background-color: #FBBC05;
+    color: white;
+    margin-right: 10px;
+}
+
+.button-container {
+    width: 100%; 
+    display: flex;
+    justify-content: center; 
+}
+
+.box {
+    background-color: #eee;
+    width: 330px;
+    height: 50px;
+    border-radius: 50px;
+    display: flex;
+    align-items: space-between;
+    justify-content: space-between;
+    padding: 0px 25px;
+}
+
+#search {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 10px;
+    width: 200px; /* Adjust as needed */
+    outline: none; /* Removes the outline */
+}
+input {
+    width: 340px;
+    height: 50px;
+    border-radius: 50px;
+    padding: 0px 25px;
+    display: flex;
+    border: none;
+    outline: none;
+    background: #eee;
+    font-size: 15px;
+}
+
+/* .textarea#details {
+    background-color: #dddddd;
+    color: #666666;
+    padding: 1em;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    outline: none;
+    background-color: #eee; 
+    color: #666666; 
+    padding: 1em; 
+    border-radius: 30px; 
+    border: 2px solid transparent; 
+    outline: none; 
+    height: 900px;
+    width: 900px; 
+    font-family: inherit; 
+    font-size: 16px; 
+    margin-top: 10px;
+} */
+
+.form-group {
+    margin-bottom: 10px; /* Adds space below the div */
+}
+
+.fas:hover{
+    color: rgb(111, 229, 146);
+    cursor: pointer;
+}
+.search-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin-left: 10px; /* Adds space to the left of the search button */
+}
+
+/* STYLES FOR THE LIST */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+.search-form {
+    order: -1;
+    margin-right: auto;
+}
+
