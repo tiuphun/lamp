@@ -1,10 +1,4 @@
-<html>
-	<head>
-		<title>Tiểu's Website ✨</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
-	</head>
-	<?php
+<?php
 	session_start(); 
 	if($_SESSION['user']){ 
 	}
@@ -13,7 +7,20 @@
 	}
 	$user = $_SESSION['user']; 
 	$usertype = $_SESSION['usertype'];
-	?>
+
+	if (isset($_SESSION['message'])) {
+		echo "<script type='text/javascript'>alert('{$_SESSION['message']}');</script>";
+		unset($_SESSION['message']);
+	}
+?>
+
+<html>
+	<head>
+		<title>Tiểu's Website ✨</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+	</head>
+	
 	<body>
 		<nav>
 			<form action="search.php" method="GET" class="search-form">

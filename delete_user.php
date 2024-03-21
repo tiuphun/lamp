@@ -1,4 +1,9 @@
 <?php
+session_start();
+  if (!isset($_SESSION['usertype']) || $_SESSION['usertype'] !== 'admin') {
+    echo 'You do not have permission to access this page.';
+    exit;
+  }
 function deleteUser($userId) {
   $mysqli = new mysqli("localhost", "root", "", "tieu_db");  
 
@@ -6,46 +11,36 @@ function deleteUser($userId) {
     die("Connection failed: " . $mysqli->connect_error);
   }
 
+  $sql = "DELETE FROM users WHERE id = ?";
+  $stmt = $mysqli->prepare($sql);
 
-  $userId = $mysqli->real_escape_string($userId);
+  $stmt->bind_param('i', $userId);  // 'i' specifies integer type for the parameter
 
-  $query = $mysqli->query("SELECT * FROM users WHERE id = $userId");
-
-  if ($query->num_rows == 1) {
-    $sql = "DELETE FROM users WHERE id = $userId";
-
-    if ($mysqli->query($sql) === TRUE) {
-      $message = "User deleted successfully!";
-    } else {
-      $message = "Error deleting user: " . $mysqli->error;
-    }
+  if ($stmt->execute()) {
+    $message = "User deleted successfully!";
   } else {
-    $message = "User with ID $userId not found!";
+    $message = "Error deleting user: " . $mysqli->error;
   }
 
+  $stmt->close();
   $mysqli->close();
-  return $message; 
-}
 
+  return $message;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-  $userId = $_POST['user_id'];
-  $message = deleteUser($userId);  
+  $userId = (int)$_POST['user_id'];  // Cast to integer for additional validation
+  $message = deleteUser($userId); 
 
-  // **Session check for admin privileges (**Optional)**
-  // Uncomment the following block if deletion requires admin rights
-  if (isset($_SESSION['admin']) && $_SESSION['admin'] === true) {
-    ?>
-    <form id="deleteForm" method="POST" action="">
-        <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
-        <input type="submit" value="Delete User" onclick="return confirm('Are you sure you want to delete this user?')">
-    </form>
-  <?php
-  } else {
-    echo "Unauthorized access! You require admin privileges to delete users.";
-    exit;
-  }
+
+  // Display the message and redirect (optional)
+  if (isset($message)): ?>
+    <script>
+      alert("<?php echo $message; ?>");
+      window.location.href = "admin.php";  // Redirect after deletion (optional)
+    </script>
+  <?php endif;
 }
 ?>
 
@@ -58,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if (isset($message)): ?>
     <script>
       alert("<?php echo $message; ?>");
-      window.location.href = "admin.php";  
+      window.location.href = "admin.php";  // Redirect after deletion (optional)
     </script>
   <?php endif; ?>
 </body>

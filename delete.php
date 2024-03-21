@@ -1,28 +1,39 @@
 <?php
-    session_start(); //starts the session
-    if($_SESSION['user']){ //checks if user is logged in
-    }
-    else{
-        header("location:index.php"); // redirects if user is not logged in
-    }
+session_start(); //starts the session
 
-    if($_SERVER['REQUEST_METHOD'] == "GET")
-    {
-        $mysqli = new mysqli("localhost", "root", "", "tieu_db");
+// Check user login before processing deletion (optional)
+if (!isset($_SESSION['user'])) {
+  header("location:index.php"); // Redirect if not logged in
+  exit;
+}
 
-        if ($mysqli->connect_error) {
-            die("Connection failed: " . $mysqli->connect_error);
-        } 
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
+  $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
-        $id = $mysqli->real_escape_string($_GET['id']);
-        
-        // if ($mysqli->query("DELETE FROM post WHERE id='$id'")) {
-        //     $_SESSION['message'] = 'Record deleted successfully';
-        // } else {
-        //     $_SESSION['message'] = 'Failed to delete record';
-        // }
+  if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+  }
 
-        $mysqli->query("DELETE FROM post WHERE id='$id'");
-        header("location: home.php");
-    }
+  $id = (int)$_GET['id']; // Cast to integer for additional validation 
+
+  // Prepare the DELETE statement with placeholder
+  $sql = "DELETE FROM post WHERE id = ?";
+  $stmt = $mysqli->prepare($sql);
+
+  // Bind parameter
+  $stmt->bind_param('i', $id); // 'i' specifies integer type for parameter
+
+  // Execute the prepared statement with error handling
+  if ($stmt->execute()) {
+    $_SESSION['message'] = 'Post deleted successfully!';
+  } else {
+    $_SESSION['message'] = 'Failed to delete post: ' . $stmt->error;  // Use $stmt->error
+  }
+
+  // Close the statement and connection
+  $stmt->close();
+  $mysqli->close();
+
+  header("location: home.php"); // Redirect after processing
+}
 ?>

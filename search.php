@@ -32,9 +32,18 @@
       die("Connection failed: " . $mysqli->connect_error);
     }
 
-    $query = $mysqli->real_escape_string($_GET['query']);
+    if (!isset($_GET['query']) || trim($_GET['query']) == '') {
+      echo "Search string cannot be empty";
+      exit();
+    }
+    
+    $query = $_GET['query'];
 
-    $result = $mysqli->query("SELECT * FROM post WHERE details LIKE '%$query%'");
+    $stmt = $mysqli->prepare("SELECT * FROM post WHERE details LIKE CONCAT('%', ?, '%')");
+    $stmt->bind_param("s", $query);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows > 0) {
       echo "<table>";

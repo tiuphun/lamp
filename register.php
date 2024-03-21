@@ -21,27 +21,30 @@
 
 <?php
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-	$mysqli = new mysqli("localhost", "root", "", "tieu_db");
-	$username = $mysqli->real_escape_string($_POST['username']);
-	$password = $mysqli->real_escape_string($_POST['password']);
-	$usertype = "user";
+    $mysqli = new mysqli("localhost", "root", "", "tieu_db");
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $usertype = "user";
     $bool = true;
 
-	$query = $mysqli->query("SELECT * FROM users");
-    while($row = $query->fetch_assoc()) {
-        $table_users = $row['username'];
-        if($username == $table_users) {
-            $bool = false;
-            echo '<script>alert("Username has been taken!");</script>';
-            echo '<script>window.location.assign("register.php");</script>';
-        }
+    $stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0) {
+        $bool = false;
+        echo '<script>alert("Username has been taken!");</script>';
+        echo '<script>window.location.assign("register.php");</script>';
     }
 
     if($bool) {
-		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $mysqli->query("INSERT INTO users (username, password, usertype) VALUES ('$username','$hashed_password', '$usertype')");
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $mysqli->prepare("INSERT INTO users (username, password, usertype) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $username, $hashed_password, $usertype);
+        $stmt->execute();
         echo '<script>alert("Successfully Registered!");</script>';
-		echo '<script>window.location.assign("register.php");</script>';
-	}
+        echo '<script>window.location.assign("register.php");</script>';
+    }
 }
 ?>

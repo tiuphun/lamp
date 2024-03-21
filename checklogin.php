@@ -1,30 +1,46 @@
 <?php
 session_start();
+
 $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
-$username = $mysqli->real_escape_string($_POST['username']);
-$password = $mysqli->real_escape_string($_POST['password']);
+if ($mysqli->connect_error) {
+  die("Connection failed: " . $mysqli->connect_error);
+}
 
-$query = $mysqli->query("SELECT * FROM users WHERE username='$username'");
-$exists = $query->num_rows;
-$table_users = "";
-$table_password = "";
-if($exists > 0) {
-    while($row = $query->fetch_assoc()) {
-        $table_users = $row['username'];
-        $table_password = $row['password'];
-        $usertype = $row['usertype'];
-    }
-    if(($username == $table_users) && password_verify($password, $table_password)) {
-        $_SESSION['user'] = $username;
-        $_SESSION['usertype'] = $usertype;
-        header("location: home.php");
+// Retrieve user input (no escaping needed with prepared statements)
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+// Prepare the SELECT statement with placeholder
+$sql = "SELECT * FROM users WHERE username = ?";
+$stmt = $mysqli->prepare($sql);
+
+// Bind parameter
+$stmt->bind_param('s', $username);
+
+// Execute the prepared statement
+if ($stmt->execute()) {
+  $result = $stmt->get_result(); // Get the result of the prepared statement
+  $user = $result->fetch_assoc(); // Fetch the user data (if any)
+  
+  if ($user) { // User found, check password using password_verify
+    if (password_verify($password, $user['password'])) {
+      $_SESSION['user'] = $username;
+      $_SESSION['usertype'] = $user['usertype'];
+      header("location: home.php");
     } else {
-        echo '<script>alert("Incorrect Password!");</script>';
-        echo '<script>window.location.assign("login.php");</script>';
+      echo '<script>alert("Incorrect Password!");</script>';
+      echo '<script>window.location.assign("login.php");</script>';
     }
-} else {
+  } else {
     echo '<script>alert("Username does not exist!");</script>';
     echo '<script>window.location.assign("login.php");</script>';
+  }
+} else {
+  echo "Error: " . $stmt->error; // Use $stmt->error for prepared statements
 }
+
+// Close resources (prepared statement and connection)
+$stmt->close();
+$mysqli->close();
 ?>

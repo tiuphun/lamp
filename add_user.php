@@ -13,27 +13,33 @@ if ($mysqli->connect_error) {
   die("Connection failed: " . $mysqli->connect_error);
 }
 
-// **Sanitize user input to prevent SQL injection**
-$newUsername = $mysqli->real_escape_string($_POST['username']);
+// Retrieve user input (no need for escaping as we're using prepared statements)
+$newUsername = $_POST['username'];
 $newPassword = $_POST['password'];
 
-// **Hash password before storing in database**
+// Hash password before storing in database
 $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-// Create a new user in the database
-$sql = "INSERT INTO users (username, password) VALUES ('$newUsername', '$newHashedPassword')";
+// Prepare the INSERT statement with placeholders
+$sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+$stmt = $mysqli->prepare($sql);
 
-if ($mysqli->query($sql) === TRUE) {
+// Bind parameters
+$stmt->bind_param('ss', $newUsername, $newHashedPassword);
+
+// Execute the prepared statement
+if ($stmt->execute()) {
   $message = "New user created successfully!";
 } else {
-  $message = "Error: " . $sql . "<br>" . $mysqli->error;
+  $message = "Error: " . $stmt->error;  // Use $stmt->error for prepared statements
 
-  // Check for duplicate username error
-  if (strpos($mysqli->error, "Duplicate entry")) {
+
+  if ($stmt->errno === 1062) {  
     $message .= "<br>Username already exists. Please choose a different username.";
   }
 }
 
+$stmt->close();
 $mysqli->close();
 
 ?>
@@ -46,7 +52,7 @@ $mysqli->close();
 <body>
   <script>
     alert("<?php echo $message; ?>");
-    window.location.href = "admin.php"; // Redirect to admin page after message
+    window.location.href = "admin.php"; 
   </script>
 </body>
 </html>

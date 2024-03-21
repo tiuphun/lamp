@@ -50,7 +50,7 @@
                             Print "<tr>";
                                 Print '<td align="center">'. $row['id'] . "</td>";
                                 Print '<td align="center">'. $row['title'] . "</td>";
-                                Print '<td align="center">'. $row['details'] . "</td>";
+                                Print '<td align="center">'. nl2br($row['details']) . "</td>";
                                 Print '<td align="center">'. $row['date_posted']. " - ". $row['time_posted']."</td>";
                                 Print '<td align="center">'. $row['date_edited']. " - ". $row['time_edited']. "</td>";
                                 // Print '<td align="center">'. $row['public']. "</td>";
@@ -63,14 +63,15 @@
             ?>
         </table>
         <br/>
-        <?php
+<?php
         if($id_exists)
         {
         Print '
         <h2>Edit Post</h2>
         <form action="edit.php" method="POST">
             <input type="text" name="title" placeholder="Title"/><br/>
-            <input type="text" name="details placeholder="Details"/><br/>
+            <textarea style="background-color: #eee; color: #666666; padding: 1em; border-radius: 30px; border: 2px solid transparent; outline: none; height: 275px; width: 340px; font-family: inherit; font-size: 16px; margin-top: 10px;"
+					class="box" placeholder="New details..." type="text" id="details" name="details" required></textarea><br>
             <input type="submit" class="submit-button" value="Update Post"/>
         </form>
         ';
@@ -91,21 +92,16 @@
         if ($mysqli->connect_error) {
             die("Connection failed: " . $mysqli->connect_error);
         }
-        $title = $mysqli->real_escape_string($_POST['title']);
-        $details = $mysqli->real_escape_string($_POST['details']);
-        // $public = "no";
+        
+        $title = $_POST['title'];
+        $details = $_POST['details'];
         $id = $_SESSION['id'];
-        $time = strftime("%X");//time
-        $date = strftime("%B %d, %Y");//date
+        $time = strftime("%X"); //time
+        $date = strftime("%B %d, %Y"); //date
 
-        // foreach($_POST['public'] as $post)
-        // {
-        //     if($post != null)
-        //     {
-        //         $public = "yes";
-        //     }
-        // }
-        $mysqli->query("UPDATE post SET title='$title', details='$details', date_edited='$date', time_edited='$time' WHERE id='$id'");
+        $stmt = $mysqli->prepare("UPDATE post SET title=?, details=?, date_edited=?, time_edited=? WHERE id=?");
+        $stmt->bind_param("ssssi", $title, $details, $date, $time, $id);
+        $stmt->execute();
 
         header("location: home.php");
     }
