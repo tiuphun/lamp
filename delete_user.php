@@ -11,7 +11,7 @@ function deleteUser($userId) {
     die("Connection failed: " . $mysqli->connect_error);
   }
 
-  $sql = "DELETE FROM users WHERE id = ?";
+  $sql = "DELETE FROM user WHERE id = ?";
   $stmt = $mysqli->prepare($sql);
 
   $stmt->bind_param('i', $userId);  // 'i' specifies integer type for the parameter

@@ -43,24 +43,15 @@
 		<h1>Home</h1>
 		<h2>Hello <?php Print "$user"?>👋</h2> <!--Displays user's name-->
 		
-		<!-- <form action="add.php" method="POST">
-			Add more to list: <input type="text" name="details" required/><br/>
-			public post? <input type="checkbox" name="public[]" value="yes"/><br/>
-			<input type="submit" class="back-button" value="Add to list"/>
-		</form> -->
 		<form action="add.php" method="POST">
 			<div class="form-group">
 				<!-- <label for="title">Title: </label></br> -->
 				<input style="margin-top: 10px" 
-					type="text" placeholder="Title goes here" id="title" name="title" required/>
+					type="text" placeholder="Title" id="title" name="title" required/>
 				<!-- <label for="details">Details: </label></br> -->
 				<textarea style="background-color: #eee; color: #666666; padding: 1em; border-radius: 30px; border: 2px solid transparent; outline: none; height: 275px; width: 340px; font-family: inherit; font-size: 16px; margin-top: 10px;"
 					class="box" placeholder="What's in your mind?" type="text" id="details" name="details" required></textarea>
 			</div>
-			<!-- <div class="form-group">
-				<label for="public">public post?</label>
-				<input type="checkbox" id="public" name="public[]" value="yes"/>
-			</div> -->
 			<input type="submit" class="submit-button" value="Add to list"/>
 		</form>
 		<h2 align="center">Posts</h2>
@@ -87,7 +78,6 @@
 						echo '<td align="center">'. $row['date_edited']. " - ". $row['time_edited']. "</td>";
 						echo '<td align="center"><a href="edit.php?id='. $row['id'] .'">edit</a> </td>';
 						echo '<td align="center"><a href="#" onclick="myFunction('.$row['id'].')">delete</a> </td>';
-						// echo '<td align="center">'. $row['public']. "</td>";
 					echo "</tr>";
 				}
 			?>

@@ -33,6 +33,7 @@
       <th>Edit Time</th>
     </tr>
     <?php
+      session_start();
       $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
       if ($mysqli->connect_error) {

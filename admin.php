@@ -22,7 +22,7 @@ if ($_SESSION['usertype'] === 'admin') {
     }
 
     // Fetch the list of users from the database
-    $result = $mysqli->query('SELECT * FROM users');
+    $result = $mysqli->query('SELECT * FROM user');
     $users = $result->fetch_all(MYSQLI_ASSOC);
     // Display the list of users as a table
     echo '<h2>Users</h2>';

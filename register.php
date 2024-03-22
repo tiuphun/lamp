@@ -27,7 +27,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $usertype = "user";
     $bool = true;
 
-    $stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt = $mysqli->prepare("SELECT * FROM user WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -40,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if($bool) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $mysqli->prepare("INSERT INTO users (username, password, usertype) VALUES (?, ?, ?)");
+        $stmt = $mysqli->prepare("INSERT INTO user (username, password, usertype) VALUES (?, ?, ?)");
         $stmt->bind_param("sss", $username, $hashed_password, $usertype);
         $stmt->execute();
         echo '<script>alert("Successfully Registered!");</script>';

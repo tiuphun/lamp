@@ -12,7 +12,7 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 
 // Prepare the SELECT statement with placeholder
-$sql = "SELECT * FROM users WHERE username = ?";
+$sql = "SELECT * FROM user WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 
 // Bind parameter
@@ -27,6 +27,7 @@ if ($stmt->execute()) {
     if (password_verify($password, $user['password'])) {
       $_SESSION['user'] = $username;
       $_SESSION['usertype'] = $user['usertype'];
+      $_SESSION['user_id'] = $user['id'];
       header("location: home.php");
     } else {
       echo '<script>alert("Incorrect Password!");</script>';

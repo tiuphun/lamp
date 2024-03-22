@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
     // Update the user's password in the database
-    $sql = "UPDATE users SET username = ?, password = ? WHERE id = ?";
+    $sql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param('sss', $username, $hashedPassword, $user_id);
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch the user details based on the ID
-$sql = "SELECT * FROM users WHERE id = ?";
+$sql = "SELECT * FROM user WHERE id = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param('i', $user_id);
 $stmt->execute();

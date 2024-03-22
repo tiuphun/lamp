@@ -16,13 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   $time = strftime("%X");
   $date = strftime("%B %d, %Y");
 
-  // Prepare the INSERT statement
-  $sql = "INSERT INTO post (title, details, date_posted, time_posted)
-          VALUES (?, ?, ?, ?)";
-  $stmt = $mysqli->prepare($sql);
+  // Get the user ID from the session (assuming you have it stored)
+  $user_id = $_SESSION['user_id']; // Replace with the appropriate way to get user ID
 
-  // Bind parameters using data types
-  $stmt->bind_param('ssss', $title, $details, $date, $time);
+  // Prepare the INSERT statement with user_id column
+  $sql = "INSERT INTO post (title, details, date_posted, time_posted, user_id)
+          VALUES (?, ?, ?, ?, ?)";
+  $stmt = $mysqli->prepare($sql);
+  // echo $mysqli->error;
+
+  // Bind parameters using data types (include user_id)
+  $stmt->bind_param('ssssi', $title, $details, $date, $time, $user_id);
+  // echo $mysqli->error;
 
   // Execute the prepared statement
   if ($stmt->execute()) {

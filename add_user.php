@@ -21,7 +21,7 @@ $newPassword = $_POST['password'];
 $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
 // Prepare the INSERT statement with placeholders
-$sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+$sql = "INSERT INTO user (username, password) VALUES (?, ?)";
 $stmt = $mysqli->prepare($sql);
 
 // Bind parameters
