@@ -31,6 +31,7 @@
       <th>Details</th>
       <th>Post Time</th>
       <th>Edit Time</th>
+      <th>Author</th>
     </tr>
     <?php
       session_start();
@@ -40,7 +41,7 @@
         die("Connection failed: " . $mysqli->connect_error);
       }
 
-      $query = $mysqli->query("SELECT * FROM post");
+      $query = $mysqli->query("SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id");
 
       if ($query) {
         while ($row = $query->fetch_assoc()) {
@@ -50,6 +51,7 @@
           echo '<td align="center">' . nl2br($row['details']) . "</td>";
           echo '<td align="center">' . $row['date_posted'] . " - " . $row['time_posted'] . "</td>";
           echo '<td align="center">' . $row['date_edited'] . " - " . $row['time_edited'] . "</td>";
+          echo '<td align="center">'. $row['username'] . "</td>"; // Display the username
           echo "</tr>";
         }
       } else {

@@ -57,17 +57,18 @@
 		<h2 align="center">Posts</h2>
 		<table border="1px" width="100%">
 			<tr>
-				<th>Id</th>
+				<th>ID</th>
 				<th>Title</th>
 				<th>Details</th>
 				<th>Post Time</th>
 				<th>Edit Time</th>
+				<th>Author</th>
 				<th>Edit</th>
 				<th>Delete</th>
 			</tr>
 			<?php
 				$mysqli = new mysqli("localhost", "root", "", "tieu_db");
-				$query = $mysqli->query("SELECT * FROM post");
+				$query = $mysqli->query("SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id");
 				while($row = $query->fetch_assoc())
 				{
 					echo "<tr>";
@@ -76,8 +77,9 @@
 						echo '<td align="center">'. nl2br($row['details']) . "</td>";
 						echo '<td align="center">'. $row['date_posted']. " - ". $row['time_posted']."</td>";
 						echo '<td align="center">'. $row['date_edited']. " - ". $row['time_edited']. "</td>";
-						echo '<td align="center"><a href="edit.php?id='. $row['id'] .'">edit</a> </td>';
-						echo '<td align="center"><a href="#" onclick="myFunction('.$row['id'].')">delete</a> </td>';
+						echo '<td align="center">'. $row['username'] . "</td>"; // Display the username
+						echo '<td align="center"><button onclick="location.href=\'edit.php?id='. $row['id'] .'\'" class="edit-button">Edit</button></td>';
+						echo '<td align="center"><button onclick="myFunction('.$row['id'].')" class="delete-button">Delete</button></td>';
 					echo "</tr>";
 				}
 			?>

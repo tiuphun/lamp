@@ -15,8 +15,7 @@
         </form>
     </nav>
   <?php
-    $searchQuery = htmlspecialchars($_GET['query']); // Get the search query
-    // Assuming $numResults is the number of search results
+    $searchQuery = htmlspecialchars($_GET['query']); 
     echo "<h2>Search Results for \"{$searchQuery}\"</h2>";
   ?>
   <form action="index.php" method="get">
@@ -32,15 +31,15 @@
       die("Connection failed: " . $mysqli->connect_error);
     }
 
-    if (!isset($_GET['query']) || trim($_GET['query']) == '') {
-      echo "Search string cannot be empty";
-      exit();
-    }
+    // if (!isset($_GET['query']) || trim($_GET['query']) == '') {
+    //   echo "Search string cannot be empty";
+    //   exit();
+    // }
     
     $query = $_GET['query'];
 
-    $stmt = $mysqli->prepare("SELECT * FROM post WHERE details LIKE CONCAT('%', ?, '%')");
-    $stmt->bind_param("s", $query);
+    $stmt = $mysqli->prepare("SELECT * FROM post WHERE title LIKE CONCAT('%', ?, '%') OR details LIKE CONCAT('%', ?, '%')");
+    $stmt->bind_param("ss", $query, $query);
     $stmt->execute();
 
     $result = $stmt->get_result();

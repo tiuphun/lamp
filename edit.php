@@ -69,7 +69,7 @@
         Print '
         <h2>Edit Post</h2>
         <form action="edit.php" method="POST">
-            <input type="text" name="title" placeholder="Title"/><br/>
+            <input type="text" name="title" placeholder="Title" required/><br/>
             <textarea style="background-color: #eee; color: #666666; padding: 1em; border-radius: 30px; border: 2px solid transparent; outline: none; height: 275px; width: 340px; font-family: inherit; font-size: 16px; margin-top: 10px;"
 					class="box" placeholder="New details..." type="text" id="details" name="details" required></textarea><br>
             <input type="submit" class="submit-button" value="Update Post"/>
