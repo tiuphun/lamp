@@ -10,24 +10,20 @@ if (!isset($_SESSION['usertype']) || $_SESSION['usertype'] !== 'admin') {
 $mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
 
 if ($mysqli->connect_error) {
-  die("Connection failed: " . $mysqli->connect_error);
+  error_log('Connection failed: ' . $mysqli->connect_error);
+  die("Connection failed. Please try again later.");
 }
 
-// Retrieve user input (no need for escaping as we're using prepared statements)
 $newUsername = $_POST['username'];
 $newPassword = $_POST['password'];
 
-// Hash password before storing in database
 $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-// Prepare the INSERT statement with placeholders
 $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
 $stmt = $mysqli->prepare($sql);
 
-// Bind parameters
 $stmt->bind_param('ss', $newUsername, $newHashedPassword);
 
-// Execute the prepared statement
 if ($stmt->execute()) {
   $message = "New user created successfully!";
 } else {

@@ -38,27 +38,32 @@
                     $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
                     if ($mysqli->connect_error) {
-                        die("Connection failed: " . $mysqli->connect_error);
+                        error_log("Failed to connect: " . $mysqli->connect_error);
+                        die("Connection failed. Please try again later.");
                     }
 
-                    $query = $mysqli->query("SELECT * FROM post WHERE id='$id'");
+                    $stmt = $mysqli->prepare("SELECT * FROM post WHERE id = ?");
+                    $stmt->bind_param("i", $id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
 
-                    if ($query) {
-                        while($row = $query->fetch_assoc())
-                        {
-							$id_exists = true;
+                    if ($result) {
+                        while ($row = $result->fetch_assoc()) {
+                            $id_exists = true;
                             Print "<tr>";
-                                Print '<td align="center">'. $row['id'] . "</td>";
-                                Print '<td align="center">'. $row['title'] . "</td>";
-                                Print '<td align="center">'. nl2br($row['details']) . "</td>";
-                                Print '<td align="center">'. $row['date_posted']. " - ". $row['time_posted']."</td>";
-                                Print '<td align="center">'. $row['date_edited']. " - ". $row['time_edited']. "</td>";
-                                // Print '<td align="center">'. $row['public']. "</td>";
+                            Print '<td align="center">' . $row['id'] . "</td>";
+                            Print '<td align="center">' . $row['title'] . "</td>";
+                            Print '<td align="center">' . nl2br($row['details']) . "</td>";
+                            Print '<td align="center">' . $row['date_posted'] . " - " . $row['time_posted'] . "</td>";
+                            Print '<td align="center">' . $row['date_edited'] . " - " . $row['time_edited'] . "</td>";
+                            // Print '<td align="center">'. $row['public']. "</td>";
                             Print "</tr>";
                         }
                     } else {
-                        echo "Error: " . $mysqli->error;
+                        error_log("Error: " . $mysqli->error);
+                        echo "An error occurred. Please try again later.";
                     }
+                    
                 }
             ?>
         </table>

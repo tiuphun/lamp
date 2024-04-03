@@ -1,7 +1,6 @@
 <?php
-session_start(); //starts the session
+session_start();
 
-// Check user login before processing deletion (optional)
 if (!isset($_SESSION['user'])) {
   header("location:index.php"); // Redirect if not logged in
   exit;
@@ -11,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
   $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
   if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+    error_log("Connection failed: " . $mysqli->connect_error);
+    die("Connection failed. Please try again later.");
   }
 
-  $id = (int)$_GET['id']; // Cast to integer for additional validation 
+  $id = (int)$_GET['id'];
 
-  // Prepare the DELETE statement with placeholder
   $sql = "DELETE FROM post WHERE id = ?";
   $stmt = $mysqli->prepare($sql);
 

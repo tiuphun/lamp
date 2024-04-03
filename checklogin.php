@@ -4,7 +4,8 @@ session_start();
 $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
 if ($mysqli->connect_error) {
-  die("Connection failed: " . $mysqli->connect_error);
+  error_log("Connection failed: " . $mysqli->connect_error);
+  die("Connection failed. Please try again later.");
 }
 
 // Retrieve user input (no escaping needed with prepared statements)
@@ -38,7 +39,8 @@ if ($stmt->execute()) {
     echo '<script>window.location.assign("login.php");</script>';
   }
 } else {
-  echo "Error: " . $stmt->error; // Use $stmt->error for prepared statements
+  error_log("Error: " . $stmt->error);
+  echo "An error occurred. Please try again later.";
 }
 
 // Close resources (prepared statement and connection)

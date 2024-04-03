@@ -8,7 +8,8 @@ function deleteUser($userId) {
   $mysqli = new mysqli("localhost", "root", "", "tieu_db");  
 
   if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+    error_log("Connection failed: " . $mysqli->connect_error);
+    die("Connection failed. Please try again later.");
   }
 
   $sql = "DELETE FROM user WHERE id = ?";
@@ -34,11 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $message = deleteUser($userId); 
 
 
-  // Display the message and redirect (optional)
   if (isset($message)): ?>
     <script>
       alert("<?php echo $message; ?>");
-      window.location.href = "admin.php";  // Redirect after deletion (optional)
+      window.location.href = "admin.php"; 
     </script>
   <?php endif;
 }
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if (isset($message)): ?>
     <script>
       alert("<?php echo $message; ?>");
-      window.location.href = "admin.php";  // Redirect after deletion (optional)
+      window.location.href = "admin.php"; 
     </script>
   <?php endif; ?>
 </body>

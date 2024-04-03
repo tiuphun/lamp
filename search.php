@@ -28,7 +28,8 @@
     $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
     if ($mysqli->connect_error) {
-      die("Connection failed: " . $mysqli->connect_error);
+      error_log("Failed to connect: " . $mysqli->connect_error);
+      die("Connection failed. Please try again later.");
     }
 
     // if (!isset($_GET['query']) || trim($_GET['query']) == '') {
@@ -66,8 +67,8 @@
 
       echo "</table>";
     } else {
+      error_log("Error: " . $mysqli->error);
       echo "No results found";
-      echo "Error: " . $mysqli->error;
     }
 
     $mysqli->close();

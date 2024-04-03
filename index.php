@@ -38,7 +38,8 @@
       $mysqli = new mysqli("localhost", "root", "", "tieu_db");
 
       if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
+        error_log("Failed to connect to MySQL: " . $mysqli->connect_error);
+        die("Connection failed. Please try again later.");
       }
 
       $query = $mysqli->query("SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id");
@@ -55,7 +56,8 @@
           echo "</tr>";
         }
       } else {
-        echo "Error: " . $mysqli->error;
+        error_log("Error: " . $mysqli->error);
+        echo "An error occurred. Please try again later.";
       }
 
       $mysqli->close();

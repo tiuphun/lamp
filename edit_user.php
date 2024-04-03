@@ -9,7 +9,8 @@ if ($_SESSION['usertype'] !== 'admin') {
 
 $mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
 if ($mysqli->connect_error) {
-    die('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
+    error_log('Connection failed: ' . $mysqli->connect_error);
+    die('Connection failed. Please try again later.');
 }
 
 // Check if the user ID is provided in the URL query string
@@ -48,7 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 window.location.href = 'admin.php';
               </script>";
       } else {
-        echo "Error updating user: " . $mysqli->error;
+        error_log("Error updating user: " . $stmt->error);
+        echo "An error occurred. Please try again later.";
     }
 
     $stmt->close();

@@ -14,21 +14,19 @@
 
 <?php
 session_start();
-// Check if the logged in user has the usertype 'admin'
 if ($_SESSION['usertype'] === 'admin') {
     $mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
     if ($mysqli->connect_error) {
-        die('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
+        error_log('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
+        die('An error occurred. Please try again later.');
     }
 
-    // Fetch the list of users from the database
     $result = $mysqli->query('SELECT * FROM user');
     $users = $result->fetch_all(MYSQLI_ASSOC);
-    // Display the list of users as a table
     echo '<h2>Users</h2>';
     echo '<table>';
     echo '<tr><th>Username</th><th>Password</th><th>Actions</th></tr>';
-    // Fetch the list of users from the database and loop through them
+
     foreach ($users as $user) {
         echo '<tr>';
         echo '<td>' . $user['username'] . '</td>';
@@ -43,7 +41,6 @@ if ($_SESSION['usertype'] === 'admin') {
     }
     echo '</table>';
 
-    // Display the form for adding a new user
     echo '<h2>Add User</h2>';
     echo '<form action="add_user.php" method="POST" class="auth-form">';
     echo '<label for="username">Username:</label>';
