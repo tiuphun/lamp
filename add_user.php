@@ -3,15 +3,20 @@
 	include 'includes/loader.php';
 	checkAdminStatus();
 	displayAndClearMessages();
-	try {
-		$mysqli = getDbConnection();
-		$newUsername = $_POST['username'];
-		$newPassword = $_POST['password'];
-		addUser($mysqli, $username, $password);
-	} catch (Exception $e) {
-		handleException($e);
-		if ($stmt->errno === 1062) {  
-			echo "Username already exists. Please choose a different username.";
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		verifyCsrfToken($_POST['csrf_token']);
+		try {
+			$mysqli = getDbConnection();
+			$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+			$password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+			$stmt = addUser($mysqli, $username, $password);
+			$_SESSION['message'] = "User added successfully!";
+		} catch (Exception $e) {
+			handleException($e);
+			if ($stmt->errno === 1062) {  
+				$_SESSION['error_message'] = "Username already exists. Please choose a different username.";
+			}
 		}
+		header("Location: admin.php");
 	}
 ?>

@@ -1,6 +1,7 @@
 <?php
     include 'includes/loader.php';
     if($_SERVER["REQUEST_METHOD"] == "POST"){
+        verifyCsrfToken($_POST['csrf_token']);
         try {
             registerUser($_POST['username'], $_POST['password']);
             $_SESSION['message'] = 'Successfully Registered!';

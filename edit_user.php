@@ -8,6 +8,8 @@
 		$user_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 		$user = fetchUserById($mysqli, $userId);
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			verifyCsrfToken($_POST['csrf_token']);
+			
 			$username = $_POST['username'];
 			$newPassword = $_POST['new_password'];
 			$confirmPassword = $_POST['confirm_password'];

@@ -14,6 +14,7 @@
     }
 
     if($_SERVER['REQUEST_METHOD'] == "POST") {
+        verifyCsrfToken($_POST['csrf_token']);
         updatePostData($_SESSION['id'], $_POST['title'], $_POST['details']);
         $_SESSION['message'] = 'Post edited successfully!';
         header("location: home.php");
