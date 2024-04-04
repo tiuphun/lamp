@@ -7,9 +7,9 @@
     $id_exists = false;
 
     if(!empty($_GET['id'])) {
-        $id = $_GET['id'];
-        $_SESSION['id'] = $id;
-        $post = getPostData($id);
+        $post_id = $_GET['id'];
+        $_SESSION['post_id'] = $post_id;
+        $post = getPostData($post_id);
         $id_exists = !empty($post);
     }
 
