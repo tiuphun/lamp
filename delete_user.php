@@ -1,60 +1,54 @@
 <?php
-session_start();
-  if (!isset($_SESSION['usertype']) || $_SESSION['usertype'] !== 'admin') {
-    echo 'You do not have permission to access this page.';
-    exit;
-  }
-function deleteUser($userId) {
-  $mysqli = new mysqli("localhost", "root", "", "tieu_db");  
+	session_start();
+	include 'utils.php';
+	checkAdminStatus();
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		try {
+            $mysqli = getDbConnection();
 
-  if ($mysqli->connect_error) {
-    error_log("Connection failed: " . $mysqli->connect_error);
-    die("Connection failed. Please try again later.");
-  }
+            $userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+            if ($userId <= 0) {
+                throw new Exception("Invalid user ID.");
+            }
 
-  $sql = "DELETE FROM user WHERE id = ?";
-  $stmt = $mysqli->prepare($sql);
+            $sql = "DELETE FROM user WHERE id = ?";
+            $stmt = $mysqli->prepare($sql);
 
-  $stmt->bind_param('i', $userId);  // 'i' specifies integer type for the parameter
+            if (!$stmt) {
+                throw new Exception("Prepare statement failed: " . $mysqli->error);
+            }
 
-  if ($stmt->execute()) {
-    $message = "User deleted successfully!";
-  } else {
-    $message = "Error deleting user: " . $mysqli->error;
-  }
+            $stmt->bind_param('i', $userId);
+            if (!$stmt->execute()) {
+                throw new Exception("Execute statement failed: " . $stmt->error);
+            }
 
-  $stmt->close();
-  $mysqli->close();
-
-  return $message;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-  $userId = (int)$_POST['user_id'];  // Cast to integer for additional validation
-  $message = deleteUser($userId); 
-
-
-  if (isset($message)): ?>
-    <script>
-      alert("<?php echo $message; ?>");
-      window.location.href = "admin.php"; 
-    </script>
-  <?php endif;
-}
+            echo "<script type='text/javascript'>
+                    alert('User deleted successfully!');
+                    window.location.href = 'admin.php';
+                </script>";
+        } catch (Exception $e) {
+        	error_log($e->getMessage());
+        	$_SESSION['error_message'] = 'An error occurred. Please try again later.';
+    	} finally {
+			$stmt->close();
+			$mysqli->close();
+    	}
+	}
 ?>
 
-<!DOCTYPE html>
 <html>
-<head>
-  <title>Delete User</title>
-</head>
-<body>
-  <?php if (isset($message)): ?>
-    <script>
-      alert("<?php echo $message; ?>");
-      window.location.href = "admin.php"; 
-    </script>
-  <?php endif; ?>
-</body>
+    <head>
+        <title>Delete User</title>
+    </head>
+    <body>
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <script>
+                alert("<?php echo htmlspecialchars($_SESSION['error_message']); ?>");
+                window.location.href = "admin.php"; 
+            </script>
+        <?php 
+            unset($_SESSION['error_message']);
+        endif; ?>
+    </body>
 </html>

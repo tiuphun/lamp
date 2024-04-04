@@ -1,55 +1,38 @@
 <html>
 	<head>
-		<title>Tiểu's Website ✨</title>
+		<title>Admin Page</title>
         <link rel="stylesheet" type="text/css" href="style.css">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
 	</head>
 	<body>
-        <h1>Admin Page</h1>
-        <form action="index.php" method="get">
-			<button type="submit" class="back-button">&#8592; Back</button>
-		</form>
+        <h1>Users</h1>
     </body>
 </html>
 
 <?php
-session_start();
-if ($_SESSION['usertype'] === 'admin') {
-    $mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
-    if ($mysqli->connect_error) {
-        error_log('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
-        die('An error occurred. Please try again later.');
+    session_start();
+    include 'utils.php';
+    checkAdminStatus();
+    displayAndClearMessages();
+
+    try {
+        $mysqli = getDbConnection();
+        $result = $mysqli->query('SELECT * FROM user');
+        if (!$result) {
+            throw new Exception('Query failed: ' . $mysqli->error);
+        }
+        $users = $result->fetch_all(MYSQLI_ASSOC);
+        echo generateUserTableHTML($users);
+        echo '
+            <h2>Add User</h2>
+            <form action="add_user.php" method="POST" class="auth-form">
+                <input type="text" name="username" placeholder="Username" id="username" required></br>
+                <input type="password" name="password" placeholder="Password" id="password" required></br>
+                <input type="submit" class="submit-button" value="Add User">
+            </form>';
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        echo 'An error occurred. Please try again later.';
+    } finally {
+        $mysqli->close();
     }
-
-    $result = $mysqli->query('SELECT * FROM user');
-    $users = $result->fetch_all(MYSQLI_ASSOC);
-    echo '<h2>Users</h2>';
-    echo '<table>';
-    echo '<tr><th>Username</th><th>Password</th><th>Actions</th></tr>';
-
-    foreach ($users as $user) {
-        echo '<tr>';
-        echo '<td>' . $user['username'] . '</td>';
-        echo '<td>' . $user['password'] . '</td>';
-        echo '<td><button onclick="location.href=\'edit_user.php?id=' . $user['id'] . '\'" type="button">Edit</button>  ';
-        echo '<form action="delete_user.php" method="POST" style="display: inline;">';
-        echo '<input type="hidden" name="user_id" value="' . $user['id'] . '">';
-        echo '<button type="submit" onclick="return confirm(\'Are you sure you want to delete this user?\')">Delete</button>';
-        echo '</form>';
-        echo '</td>';        
-        echo '</tr>';
-    }
-    echo '</table>';
-
-    echo '<h2>Add User</h2>';
-    echo '<form action="add_user.php" method="POST" class="auth-form">';
-    echo '<label for="username">Username:</label>';
-    echo '<input type="text" name="username" id="username" required></br>';
-    echo '<label for="password">Password:</label>';
-    echo '<input type="password" name="password" id="password" required></br>';
-    echo '<input type="submit" class="submit-button" value="Add User">';
-    echo '</form>';
-} else {
-    echo 'You do not have permission to access this page.';
-}
 ?>
