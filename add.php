@@ -5,6 +5,7 @@
 	date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 	if ($_SERVER['REQUEST_METHOD'] == "POST") {
+		verifyCsrfToken($_POST['csrf_token']);
 		try {
 			$mysqli = getDbConnection();
 			$title = $_POST['title'];

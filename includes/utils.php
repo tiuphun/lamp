@@ -273,7 +273,7 @@ function generateTableHTML($queryResult) {
 }
 
 function generateUserTableHTML($users) {
-    $tableHTML = "<table border=\"1px\" width=\"100%\"><tr><th>ID</th><th>Password</th><th>Edit</th><th>Delete</th></tr>";
+    $tableHTML = "<table border=\"1px\" width=\"100%\"><tr><th>ID</th><th>Password</th><th>Actions</th></tr>";
 
     foreach ($users as $user) {
         $tableHTML .= '<tr>
@@ -332,6 +332,10 @@ function generateCsrfToken() {
 }
 
 function verifyCsrfToken($token) {
-    return hash_equals($_SESSION['csrf_token'], $token);
+    $valid = hash_equals($_SESSION['csrf_token'], $token);
+    if (!$valid) {
+        http_response_code(403);
+        die("Invalid CSRF token.");
+    }
 }
 ?>
