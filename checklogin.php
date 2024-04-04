@@ -1,49 +1,43 @@
 <?php
-session_start();
+	session_start();
+	include 'utils.php';
+	try {
+		$mysqli = getDbConnection();
 
-$mysqli = new mysqli("localhost", "root", "", "tieu_db");
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+		$sql = "SELECT * FROM user WHERE username = ?";
+		$stmt = $mysqli->prepare($sql);
 
-if ($mysqli->connect_error) {
-  error_log("Connection failed: " . $mysqli->connect_error);
-  die("Connection failed. Please try again later.");
-}
+		if (!$stmt) {
+			throw new Exception("Prepare failed: " . $mysqli->error);
+		}
+		$stmt->bind_param('s', $username);
 
-// Retrieve user input (no escaping needed with prepared statements)
-$username = $_POST['username'];
-$password = $_POST['password'];
-
-// Prepare the SELECT statement with placeholder
-$sql = "SELECT * FROM user WHERE username = ?";
-$stmt = $mysqli->prepare($sql);
-
-// Bind parameter
-$stmt->bind_param('s', $username);
-
-// Execute the prepared statement
-if ($stmt->execute()) {
-  $result = $stmt->get_result(); // Get the result of the prepared statement
-  $user = $result->fetch_assoc(); // Fetch the user data (if any)
-  
-  if ($user) { // User found, check password using password_verify
-    if (password_verify($password, $user['password'])) {
-      $_SESSION['user'] = $username;
-      $_SESSION['usertype'] = $user['usertype'];
-      $_SESSION['user_id'] = $user['id'];
-      header("location: home.php");
-    } else {
-      echo '<script>alert("Incorrect Password!");</script>';
-      echo '<script>window.location.assign("login.php");</script>';
-    }
-  } else {
-    echo '<script>alert("Username does not exist!");</script>';
-    echo '<script>window.location.assign("login.php");</script>';
-  }
-} else {
-  error_log("Error: " . $stmt->error);
-  echo "An error occurred. Please try again later.";
-}
-
-// Close resources (prepared statement and connection)
-$stmt->close();
-$mysqli->close();
+		if (!$stmt->execute()) {
+			throw new Exception("Execute failed: " . $stmt->error);
+		}
+		$result = $stmt->get_result(); 
+		$user = $result->fetch_assoc(); 
+		
+		if ($user && password_verify($password, $user['password'])) {
+			$_SESSION['user'] = $username;
+			$_SESSION['usertype'] = $user['usertype'];
+			$_SESSION['user_id'] = $user['id'];
+			header("location: home.php");
+			exit;
+		} else {
+			$_SESSION['error_message'] = 'Incorrect username or password.';
+			header("Location: login.php");
+			exit;
+		}	
+	} catch (Exception $e) {
+		error_log($e->getMessage());
+		$_SESSION['error_message'] = 'An error occurred. Please try again later.';
+		header("Location: login.php");
+		exit;
+	} finally {
+		$stmt->close();
+		$mysqli->close();
+	}
 ?>

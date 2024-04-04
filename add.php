@@ -1,39 +1,37 @@
 <?php
-session_start();
+	session_start();
+	include 'utils.php';
+	checkLoggedInStatus();
+	date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-if (!isset($_SESSION['user'])) {
-} else {
-  header("location:index.php");
-}
+	if ($_SERVER['REQUEST_METHOD'] == "POST") {
+		try {
+			$mysqli = getDbConnection();
 
-date_default_timezone_set('Asia/Ho_Chi_Minh');
+			$title = $_POST['title'];
+			$details = $_POST['details'];
+			$time = strftime("%X");
+			$date = strftime("%B %d, %Y");
+			$user_id = $_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
-  $mysqli = new mysqli("localhost", "root", "", "tieu_db");
-
-  $title = $_POST['title'];
-  $details = $_POST['details'];
-  $time = strftime("%X");
-  $date = strftime("%B %d, %Y");
-
-  $user_id = $_SESSION['user_id']; // Replace with the appropriate way to get user ID
-
-  $sql = "INSERT INTO post (title, details, date_posted, time_posted, user_id)
-          VALUES (?, ?, ?, ?, ?)";
-  $stmt = $mysqli->prepare($sql);
-
-  $stmt->bind_param('ssssi', $title, $details, $date, $time, $user_id);
-
-  if ($stmt->execute()) {
-    header("location: home.php");
-  } else {
-    error_log("Error creating post: " . $stmt->error);
-    echo "An error occurred. Please try again later.";
-  }
-
-  $stmt->close();
-  $mysqli->close();
-} else {
-  header("location:home.php");
-}
+			$sql = "INSERT INTO post (title, details, date_posted, time_posted, user_id)
+					VALUES (?, ?, ?, ?, ?)";
+			$stmt = $mysqli->prepare($sql);
+			if (!$stmt = $mysqli->prepare($sql)) {
+				throw new Exception("Prepare failed: " . $mysqli->error);
+			}
+			
+			$stmt->bind_param('ssssi', $title, $details, $date, $time, $user_id);
+			if (!$stmt->execute()) {
+				throw new Exception("Execute failed: " . $stmt->error);
+			}
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+			echo "An error occurred. Please try again later.";
+		} finally {
+			$stmt->close();
+			$mysqli->close();
+			header("location:home.php");
+		}
+	}
 ?>

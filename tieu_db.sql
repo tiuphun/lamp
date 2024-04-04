@@ -8,7 +8,7 @@
 -- PHP Version: 5.5.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+SET time_zone = "+07:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -41,13 +41,13 @@ CREATE TABLE IF NOT EXISTS `post` (
 -- Dumping data for table `post`
 --
 
-INSERT INTO `post` (`id`, `details`, `date_posted`, `time_posted`, `date_edited`, `time_edited`, `public`) VALUES
-(2, 'Tuna', 'March 26, 2014', '13:48:18', '', '00:00:00', 'no'),
-(3, 'Salad', 'March 27, 2014', '04:47:49', '', '00:00:00', 'yes'),
-(4, 'Corn', 'March 27, 2014', '04:48:11', '', '00:00:00', 'no'),
-(5, 'Pasta', 'March 27, 2014', '04:48:26', '', '00:00:00', 'yes'),
-(6, 'Chicken', 'March 27, 2014', '04:49:23', '', '00:00:00', 'yes'),
-(7, 'Spaghetti', 'March 27, 2014', '04:49:49', '', '00:00:00', 'no');
+-- INSERT INTO `post` (`id`, `details`, `date_posted`, `time_posted`, `date_edited`, `time_edited`, `public`) VALUES
+-- (2, 'Tuna', 'March 26, 2014', '13:48:18', '', '00:00:00', 'no'),
+-- (3, 'Salad', 'March 27, 2014', '04:47:49', '', '00:00:00', 'yes'),
+-- (4, 'Corn', 'March 27, 2014', '04:48:11', '', '00:00:00', 'no'),
+-- (5, 'Pasta', 'March 27, 2014', '04:48:26', '', '00:00:00', 'yes'),
+-- (6, 'Chicken', 'March 27, 2014', '04:49:23', '', '00:00:00', 'yes'),
+-- (7, 'Spaghetti', 'March 27, 2014', '04:49:49', '', '00:00:00', 'no');
 
 -- --------------------------------------------------------
 
@@ -55,7 +55,7 @@ INSERT INTO `post` (`id`, `details`, `date_posted`, `time_posted`, `date_edited`
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `password` varchar(50) NOT NULL,
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'xtian', '123456');
+-- INSERT INTO `user` (`id`, `username`, `password`) VALUES
+-- (1, 'xtian', '123456');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

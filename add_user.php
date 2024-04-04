@@ -1,54 +1,46 @@
 <?php
-session_start();
+	session_start();
+	include 'utils.php';
+	checkAdminStatus();
+	try {
+		$mysqli = getDbConnection();
 
-// Validate user access (should be an admin)
-if (!isset($_SESSION['usertype']) || $_SESSION['usertype'] !== 'admin') {
-  echo 'You do not have permission to access this page.';
-  exit;
-}
+		$newUsername = $_POST['username'];
+		$newPassword = $_POST['password'];
+		$newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-$mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
+		$sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+		$stmt = $mysqli->prepare($sql);
 
-if ($mysqli->connect_error) {
-  error_log('Connection failed: ' . $mysqli->connect_error);
-  die("Connection failed. Please try again later.");
-}
+		if (!$stmt) {
+			throw new Exception('Prepare failed: ' . $mysqli->error);
+		}
+		$stmt->bind_param('ss', $newUsername, $newHashedPassword);
 
-$newUsername = $_POST['username'];
-$newPassword = $_POST['password'];
-
-$newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-$sql = "INSERT INTO user (username, password) VALUES (?, ?)";
-$stmt = $mysqli->prepare($sql);
-
-$stmt->bind_param('ss', $newUsername, $newHashedPassword);
-
-if ($stmt->execute()) {
-  $message = "New user created successfully!";
-} else {
-  $message = "Error: " . $stmt->error;  // Use $stmt->error for prepared statements
-
-
-  if ($stmt->errno === 1062) {  
-    $message .= "<br>Username already exists. Please choose a different username.";
-  }
-}
-
-$stmt->close();
-$mysqli->close();
-
+		if (!$stmt->execute()) {
+			throw new Exception('Error adding user: ' . $stmt->error);
+			echo "New user added successfully!";
+		} 
+	} catch (Exception $e) {
+		error_log($e->getMessage());
+		echo 'An error occurred. Please try again later.';
+		if ($stmt->errno === 1062) {  
+			echo "Username already exists. Please choose a different username.";
+		}
+	} finally {
+		$stmt->close();
+		$mysqli->close();
+	}
 ?>
 
-<!DOCTYPE html>
 <html>
-<head>
-  <title>Add User</title>
-</head>
-<body>
-  <script>
-    alert("<?php echo $message; ?>");
-    window.location.href = "admin.php"; 
-  </script>
-</body>
+	<head>
+		<title>Add User</title>
+	</head>
+	<body>
+		<script>
+			alert("<?php echo $message; ?>");
+			window.location.href = "admin.php"; 
+		</script>
+	</body>
 </html>

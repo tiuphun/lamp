@@ -1,99 +1,74 @@
 <?php
-session_start();
+	include 'utils.php';
+	session_start();
+	checkAdminStatus();
 
-if ($_SESSION['usertype'] !== 'admin') {
-    echo 'You do not have permission to access this page.';
-    header('Location: home.php');
-    exit;
-}
+	try {
+		$mysqli = getDbConnection();
+		$user_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$mysqli = new mysqli('localhost', 'root', '', 'tieu_db');
-if ($mysqli->connect_error) {
-    error_log('Connection failed: ' . $mysqli->connect_error);
-    die('Connection failed. Please try again later.');
-}
+		if ($user_id <= 0) {
+			throw new Exception('Invalid user ID.');
+		}
 
-// Check if the user ID is provided in the URL query string
-$user_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$username = $_POST['username'];
+			$newPassword = $_POST['new_password'];
+			$confirmPassword = $_POST['confirm_password'];
 
-// Validate user ID (optional, you can add more validation here)
-if ($user_id <= 0) {
-  echo "Invalid user ID.";
-  exit;
-}
+			if (empty($username) || empty($newPassword) || empty($confirmPassword)) {
+				throw new Exception("Please fill in all the fields.");
+			} elseif ($newPassword !== $confirmPassword) {
+				throw new Exception("The new passwords do not match.");
+			} else {
+				$hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+				$sql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
+				$stmt = $mysqli->prepare($sql);
+				$stmt->bind_param('sss', $username, $hashedPassword, $user_id);
 
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Get the form data
-  $username = $_POST['username'];
-  $newPassword = $_POST['new_password'];
-  $confirmPassword = $_POST['confirm_password'];
+				if (!$stmt->execute()) {
+					throw new Exception('Error updating user": ' . $stmt->error);
+				}
+				
+				$_SESSION['message'] = 'User edited successfully!';
+                header("Location: admin.php");
+                exit;
+			}
+		}
 
-  // Validate the form data
-  if (empty($username) || empty($newPassword) || empty($confirmPassword)) {
-    echo "Please fill in all the fields.";
-  } elseif ($newPassword !== $confirmPassword) {
-    echo "The new passwords do not match.";
-  } else {
-    // Hash the new password before updating
-    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+		$sql = "SELECT * FROM user WHERE id = ?";
+		$stmt = $mysqli->prepare($sql);
+		$stmt->bind_param('i', $user_id);
+		$stmt->execute();
+		$result = $stmt->get_result();
 
-    // Update the user's password in the database
-    $sql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
-    $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param('sss', $username, $hashedPassword, $user_id);
-
-    if ($stmt->execute()) {
-        echo "<script type='text/javascript'>
-                alert('User edited successfully!');
-                window.location.href = 'admin.php';
-              </script>";
-      } else {
-        error_log("Error updating user: " . $stmt->error);
-        echo "An error occurred. Please try again later.";
-    }
-
-    $stmt->close();
-  }
-}
-
-// Fetch the user details based on the ID
-$sql = "SELECT * FROM user WHERE id = ?";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 1) {
-  $user = $result->fetch_assoc();
-} else {
-  echo "User not found.";
-  exit;
-}
-
-$stmt->close();
+		if ($result->num_rows === 1) {
+			$user = $result->fetch_assoc();
+		} else {
+			throw new Exception('User not found.');
+		}
+	} catch (Exception $e) {
+		error_log($e->getMessage());
+		$_SESSION['error_message'] = $e->getMessage();
+        header("Location: admin.php");
+        exit;
+	} finally {
+		$mysqli->close();
+	}
 ?>
 
-<!DOCTYPE html>
 <html>
-<head>
-  <title>Edit User</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
-</head>
-<body>
-  <h1>Edit User</h1>
-  <form method="POST" action="" class="auth-form">
-    <!-- <input type="hidden" name="id" value="<?php echo $user['id']; ?>">  <label for="username">Username:</label> -->
-    <input type="text" name="username" id="username" placeholder="New username" value="<?php echo $user['username']; ?>" required><br>
-
-    <!-- <label for="new_password">New Password:</label> -->
-    <input type="password" name="new_password" id="new_password" placeholder="New password" required><br>
-
-    <!-- <label for="confirm_password">Confirm New Password:</label> -->
-    <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm new password" required><br>
-
-    <input type="submit" class="submit-button" value="Edit User">
-  </form>
-</body>
+	<head>
+		<title>Edit User</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<h1>Edit User</h1>
+		<form method="POST" action="" class="auth-form">
+			<input type="text" name="username" id="username" placeholder="New username" value="<?php echo $user['username']; ?>" required><br>
+			<input type="password" name="new_password" id="new_password" placeholder="New password" required><br>
+			<input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm new password" required><br>
+			<input type="submit" class="submit-button" value="Edit User">
+		</form>
+	</body>
 </html>

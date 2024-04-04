@@ -1,86 +1,53 @@
 <?php
 	session_start(); 
-	if($_SESSION['user']){ 
-	}
-	else{
-		header("location:index.php");
-	}
-	$user = $_SESSION['user']; 
+	include 'nav.php';
+	include 'utils.php';
+	checkLoggedInStatus();
+	$user = $_SESSION['user'];
 	$usertype = $_SESSION['usertype'];
 
-	if (isset($_SESSION['message'])) {
-		echo "<script type='text/javascript'>alert('{$_SESSION['message']}');</script>";
-		unset($_SESSION['message']);
-	}
+	displayAndClearMessages();
 ?>
 
 <html>
 	<head>
-		<title>Tiểu's Website ✨</title>
+		<title>Home</title>
         <link rel="stylesheet" type="text/css" href="style.css">
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
 	</head>
 	
 	<body>
-		<nav>
-			<form action="search.php" method="GET" class="search-form">
-                <div class="box">
-                    <input type="text" placeholder="Search" id="search" name="query">
-                    <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-			<?php
-				if ($usertype == "admin") {
-					echo '<form action="admin.php" method="get">
-							<button type="submit" class="admin-button">Admin</button>
-						</form>';
-					}
-			?>
-			<form action="logout.php" method="get">
-					<button type="submit" class="logout-button">Log out</button>
-			</form>
-		</nav>
 		<h1>Home</h1>
-		<h2>Hello <?php Print "$user"?>👋</h2> <!--Displays user's name-->
+		<h2>Hello <?php Print "$user"?>👋</h2>
 		
 		<form action="add.php" method="POST">
 			<div class="form-group">
-				<!-- <label for="title">Title: </label></br> -->
 				<input style="margin-top: 10px" 
 					type="text" placeholder="Title" id="title" name="title" required/>
-				<!-- <label for="details">Details: </label></br> -->
 				<textarea style="background-color: #eee; color: #666666; padding: 1em; border-radius: 30px; border: 2px solid transparent; outline: none; height: 275px; width: 340px; font-family: inherit; font-size: 16px; margin-top: 10px;"
-					class="box" placeholder="What's in your mind?" type="text" id="details" name="details" required></textarea>
+					class="box" placeholder="Details" type="text" id="details" name="details" required></textarea>
 			</div>
 			<input type="submit" class="submit-button" value="Add to list"/>
 		</form>
 		<h2 align="center">Posts</h2>
-		<table border="1px" width="100%">
-			<tr>
-				<th>ID</th>
-				<th>Title</th>
-				<th>Details</th>
-				<th>Post Time</th>
-				<th>Edit Time</th>
-				<th>Author</th>
-				<th>Edit</th>
-				<th>Delete</th>
-			</tr>
 			<?php
-				$mysqli = new mysqli("localhost", "root", "", "tieu_db");
-				$query = $mysqli->query("SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id");
-				while($row = $query->fetch_assoc())
-				{
-					echo "<tr>";
-						echo '<td align="center">'. $row['id'] . "</td>";
-						echo '<td align="center">'. $row['title'] . "</td>"; 
-						echo '<td align="center">'. nl2br($row['details']) . "</td>";
-						echo '<td align="center">'. $row['date_posted']. " - ". $row['time_posted']."</td>";
-						echo '<td align="center">'. $row['date_edited']. " - ". $row['time_edited']. "</td>";
-						echo '<td align="center">'. $row['username'] . "</td>"; // Display the username
-						echo '<td align="center"><button onclick="location.href=\'edit.php?id='. $row['id'] .'\'" class="edit-button">Edit</button></td>';
-						echo '<td align="center"><button onclick="myFunction('.$row['id'].')" class="delete-button">Delete</button></td>';
-					echo "</tr>";
+				include 'utils.php';
+				try {
+					$mysqli = new mysqli("localhost", "root", "", "tieu_db");
+					if ($mysqli->connect_error) {
+						throw new Exception("Connection failed: " . $mysqli->connect_error);
+					}
+					$query = $mysqli->query("SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id");
+					
+					if (!$query) {
+						throw new Exception("Query failed: " . $mysqli->error);
+					}
+					echo generateTableHTML($query);
+				} catch (Exception $e) {
+					error_log($e->getMessage());
+					echo "An error occurred. Please try again later.";
+				} finally {
+					$mysqli->close();
 				}
 			?>
 		</table>
@@ -88,10 +55,9 @@
 			function myFunction(id)
 			{
 			var r=confirm("Are you sure you want to delete this record?");
-			if (r==true)
-			  {
-			  	window.location.assign("delete.php?id=" + id);
-			  }
+				if (r==true) {
+					window.location.assign("delete.php?id=" + id);
+				}
 			}
 		</script>
 	</body>
