@@ -1,5 +1,5 @@
 <?php
-    include 'utils.php';
+    include 'includes/loader.php';
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         try {
             registerUser($_POST['username'], $_POST['password']);
@@ -7,7 +7,8 @@
             header("Location: register.php");
             exit;
         } catch (Exception $e) {
-            $_SESSION['error_message'] = $e->getMessage();
+            handleException($e);
+            $_SESSION['error_message'] = "An error occurred. Please try again later.";
             header("Location: register.php");
             exit;
         }
@@ -21,13 +22,6 @@
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
-        <h2>Register</h2>
-        <form action="register.php" method="POST" class="auth-form">
-            <input type="text" name="username" placeholder="Username" required="required"/> <br/>
-            <input type="password" name="password" placeholder="Password" required="required" /> <br/>
-            <div class="button-container">
-                <input type="submit" class="submit-button" value="Register"/>
-            </div>
-        </form>
+        <?php echo getRegisterForm(); ?>
     </body>
 </html>

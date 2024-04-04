@@ -1,5 +1,5 @@
 <?php
-    include 'utils.php';
+    include 'includes/loader.php';
     session_start(); 
     checkLoggedInStatus();
     date_default_timezone_set('Asia/Ho_Chi_Minh');
@@ -29,15 +29,9 @@
     <body>
         <h1 align="center">Currently Selected</h1>
         <h4>You are editing as <?php echo $user; ?></h4>
-        <?php if ($id_exists): echo generateTableHTML($query); ?>
-            <br/>
-            <h2>Edit Post</h2>
-            <form action="edit.php" method="POST">
-                <input type="text" name="title" placeholder="Title" required/><br/>
-                <textarea style="background-color: #eee; color: #666666; padding: 1em; border-radius: 30px; border: 2px solid transparent; outline: none; height: 275px; width: 340px; font-family: inherit; font-size: 16px; margin-top: 10px;"
-                        class="box" placeholder="New details..." type="text" id="details" name="details" required></textarea><br>
-                <input type="submit" class="submit-button" value="Update Post"/>
-            </form>
+        <?php if ($id_exists): ?>
+            <?php echo generateTableHTML($query); ?>
+            <?php echo getEditPostForm(); ?>
         <?php else: ?>
             <h2 align="center">There is no data to be edited.</h2>
         <?php endif; ?>
