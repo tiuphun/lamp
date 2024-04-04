@@ -7,7 +7,7 @@
 		try {
 			$mysqli = getDbConnection();
 			$id = (int)$_GET['id'] ? (int)$_GET['id'] : 0;
-			deletePost($mysqli, $postId);
+			deletePost($mysqli, $id);
 		} catch (Exception $e) {
 			handleException($e);
 		} 

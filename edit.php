@@ -31,7 +31,7 @@
         <h1 align="center">Currently Selected</h1>
         <h4>You are editing as <?php echo $user; ?></h4>
         <?php if ($id_exists): ?>
-            <?php echo generateTableHTML($query); ?>
+            <?php echo generateTableHTML($post); ?>
             <?php echo getEditPostForm(); ?>
         <?php else: ?>
             <h2 align="center">There is no data to be edited.</h2>

@@ -234,12 +234,12 @@ function fetchPosts($mysqli) {
 }
 function getPostData($id) {
     $mysqli = getDbConnection();
-    $stmt = $mysqli->prepare("SELECT * FROM post WHERE id = ?");
+    $stmt = $mysqli->prepare("SELECT * FROM post INNER JOIN user ON post.user_id = user.id WHERE post.id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
     $mysqli->close();
-    return $result->fetch_assoc();
+    return $result;
 }
 
 function updatePostData($id, $title, $details) {
@@ -264,7 +264,7 @@ function generateTableHTML($queryResult) {
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['date_edited']). " - ". htmlspecialchars($row['time_edited']). "</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['username']) . "</td>"; 
         $tableHTML .= '<td align="center"><button onclick="location.href=\'edit.php?id='. htmlspecialchars($row['id']) .'\'" class="edit-button">Edit</button></td>';
-        $tableHTML .= '<td align="center"><button onclick="myFunction('.htmlspecialchars($row['id']).')" class="delete-button">Delete</button></td>';
+        $tableHTML .= '<td align="center"><button onclick="confirmDelete('.htmlspecialchars($row['id']).')" class="delete-button">Delete</button></td>';
         $tableHTML .= "</tr>";
     }
 
