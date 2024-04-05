@@ -8,27 +8,30 @@ function getDbConnection() {
 }
 
 function addUser($mysqli, $username, $password) {
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    if (empty($username) || empty($newPassword)) {
+        throw new Exception("Please fill in all the fields.");
+    } else {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Prepare failed: ' . $mysqli->error);
+        }
+        $stmt->bind_param('ss', $username, $hashedPassword);
 
-    $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
-    $stmt = $mysqli->prepare($sql);
-
-    if (!$stmt) {
-        throw new Exception('Prepare failed: ' . $mysqli->error);
+        if (!$stmt->execute()) {
+            throw new Exception('Error adding user: ' . $stmt->error);
+        } 
+        $_SESSION['message'] = "New user added successfully!";
+        header("Location: admin.php");
+        exit;
     }
-    $stmt->bind_param('ss', $username, $hashedPassword);
-
-    if (!$stmt->execute()) {
-        throw new Exception('Error adding user: ' . $stmt->error);
-    } 
-
-    echo "New user added successfully!";
     $stmt->close();
 	$mysqli->close();
 }
 
-function editUser($mysqli, $userId, $username, $newPassword, $confirmPassword) {
-    if ($userId <= 0) {
+function editUser($mysqli, $user_id, $username, $newPassword, $confirmPassword) {
+    if ($user_id <= 0) {
         throw new Exception('Invalid user ID.');
     }
 
@@ -40,7 +43,7 @@ function editUser($mysqli, $userId, $username, $newPassword, $confirmPassword) {
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         $sql = "UPDATE user SET username = ?, password = ? WHERE id = ?";
         $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param('ssi', $username, $hashedPassword, $userId);
+        $stmt->bind_param('ssi', $username, $hashedPassword, $user_id);
 
         if (!$stmt->execute()) {
             throw new Exception('Error updating user: ' . $stmt->error);
@@ -54,8 +57,8 @@ function editUser($mysqli, $userId, $username, $newPassword, $confirmPassword) {
     $mysqli->close();
 }
 
-function deleteUser($mysqli, $userId) {
-    if ($userId <= 0) {
+function deleteUser($mysqli, $user_id) {
+    if ($user_id <= 0) {
         throw new Exception("Invalid user ID.");
     }
 
@@ -66,7 +69,7 @@ function deleteUser($mysqli, $userId) {
         throw new Exception("Prepare statement failed: " . $mysqli->error);
     }
 
-    $stmt->bind_param('i', $userId);
+    $stmt->bind_param('i', $user_id);
     if (!$stmt->execute()) {
         throw new Exception("Execute statement failed: " . $stmt->error);
     }
@@ -119,6 +122,7 @@ function registerUser($username, $password) {
     $result = $stmt->get_result();
 
     if($result->num_rows > 0) {
+        $_SESSION['error_message'] = 'Username has been taken!';
         throw new Exception("Username has been taken!");
     }
 
@@ -140,8 +144,8 @@ function fetchAllUsers($mysqli) {
     $mysqli->close();
 }
 
-function fetchUserById($mysqli, $userId) {
-    if ($userId <= 0) {
+function fetchUserById($mysqli, $user_id) {
+    if ($user_id <= 0) {
         throw new Exception("Invalid user ID.");
     }
 
@@ -152,7 +156,7 @@ function fetchUserById($mysqli, $userId) {
         throw new Exception("Prepare statement failed: " . $mysqli->error);
     }
 
-    $stmt->bind_param('i', $userId);
+    $stmt->bind_param('i', $user_id);
     if (!$stmt->execute()) {
         throw new Exception("Execute statement failed: " . $stmt->error);
     }
@@ -167,7 +171,9 @@ function searchPosts($mysqli, $query) {
         exit();
     }
 
-    $stmt = $mysqli->prepare("SELECT * FROM post INNER JOIN user ON post.user_id = user.id WHERE title LIKE CONCAT('%', ?, '%') OR details LIKE CONCAT('%', ?, '%')");
+    $stmt = $mysqli->prepare("SELECT post.*, post.id AS post_id, user.username 
+                            FROM post INNER JOIN user ON post.user_id = user.id 
+                            WHERE title LIKE CONCAT('%', ?, '%') OR details LIKE CONCAT('%', ?, '%')");
     $stmt->bind_param("ss", $query, $query);
     $stmt->execute();
 
@@ -199,18 +205,22 @@ function createPost($mysqli, $title, $details, $user_id) {
 	$mysqli->close();
 }
 
-function deletePost($mysqli, $post_id) {
+function deletePost($mysqli, $post_id, $user_id) {
     if ($post_id <= 0) {
         throw new Exception("Invalid post ID.");
     }
-    $sql = "DELETE FROM post WHERE id = ?";
+    $post = getPostData($post_id);
+    if ($post['user_id'] !== $user_id) {
+        throw new Exception("You do not have permission to delete this post.");
+    }
+    $sql = "DELETE FROM post WHERE id = ? AND user_id = ?";
     $stmt = $mysqli->prepare($sql);
 
     if (!$stmt) {
         throw new Exception("Prepare statement failed: " . $mysqli->error);
     }
 
-    $stmt->bind_param('i', $post_id);
+    $stmt->bind_param('ii', $post_id, $user_id);
     if (!$stmt->execute()) {
         throw new Exception("Execute statement failed: " . $stmt->error);
     }
@@ -222,7 +232,7 @@ function deletePost($mysqli, $post_id) {
     $mysqli->close();
 }
 function fetchPosts($mysqli) {
-    $sql = "SELECT post.id AS post_id, post.title, post.details, post.date_posted, post.time_posted, post.date_edited, post.time_edited, user.username 
+    $sql = "SELECT post.*, post.id AS post_id, user.username 
             FROM post INNER JOIN user ON post.user_id = user.id";
     $query = $mysqli->query($sql);
 
@@ -234,22 +244,31 @@ function fetchPosts($mysqli) {
 }
 function getPostData($post_id) {
     $mysqli = getDbConnection();
-    $stmt = $mysqli->prepare("SELECT post.id AS post_id, post.title, post.details, post.date_posted, post.time_posted, post.date_edited, post.time_edited, user.username
+    $stmt = $mysqli->prepare("SELECT post.*, post.id AS post_id, post.user_id AS user_id, user.username
                              FROM post INNER JOIN user ON post.user_id = user.id 
                              WHERE post.id = ?");
     $stmt->bind_param("i", $post_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $mysqli->close();
-    return $result;
+    return $result->fetch_assoc();
 }
 
-function updatePostData($id, $title, $details) {
+function editPost($post_id, $title, $details, $user_id) {
     $mysqli = getDbConnection();
+    $post = getPostData($post_id);
+    if ($post['user_id'] !== $user_id) {
+        $_SESSION[$error_message] = "You do not have permission to edit this post.";
+    }
     $time = strftime("%X"); 
     $date = strftime("%B %d, %Y");
-    $stmt = $mysqli->prepare("UPDATE post SET title=?, details=?, date_edited=?, time_edited=? WHERE id=?");
-    $stmt->bind_param("ssssi", $title, $details, $date, $time, $id);
+    $stmt = $mysqli->prepare("UPDATE post SET title=?, details=?, date_edited=?, time_edited=? 
+                            WHERE id=? AND user_id=?");
+    $stmt->bind_param("ssssii", $title, $details, $date, $time, $post_id, $user_id);
+    if (!$stmt->execute()) {
+        throw new Exception("Error updating post: " . $stmt->error);
+    }
+    $_SESSION['message'] = 'Post edited successfully!';
     $stmt->execute();
     $mysqli->close();
 }
@@ -265,8 +284,11 @@ function generateTableHTML($queryResult) {
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['date_posted']). " - ". htmlspecialchars($row['time_posted'])."</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['date_edited']). " - ". htmlspecialchars($row['time_edited']). "</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['username']) . "</td>"; 
-        $tableHTML .= '<td align="center"><button onclick="location.href=\'edit.php?id='. htmlspecialchars($row['post_id']) .'\'" class="edit-button">Edit</button></td>';
-        $tableHTML .= '<td align="center"><button onclick="confirmDelete('.htmlspecialchars($row['post_id']).')" class="delete-button">Delete</button></td>';
+        if ($row['user_id'] == $_SESSION['user_id']) {
+            $tableHTML .= '<td align="center"><button onclick="location.href=\'edit.php?id='. htmlspecialchars($row['post_id']) .'\'" class="edit-button">Edit</button></td>';
+            $tableHTML .= '<td align="center"><button onclick="confirmDelete('.htmlspecialchars($row['post_id']).')" class="delete-button">Delete</button></td>';
+        }
+        
         $tableHTML .= "</tr>";
     }
 

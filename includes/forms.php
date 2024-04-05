@@ -68,7 +68,7 @@ function getLoginForm() {
         </form>
     HTML;
 }
-function getRegistrationForm() {
+function getRegisterForm() {
     $csrfToken = generateCsrfToken();
     return <<<HTML
         <h2>Register</h2>

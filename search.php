@@ -1,4 +1,5 @@
 <?php
+    session_start();
     include 'includes/loader.php';
     try {
         $mysqli = getDbConnection();

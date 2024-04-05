@@ -7,10 +7,11 @@
 		verifyCsrfToken($_POST['csrf_token']);
 		try {
 			$mysqli = getDbConnection();
-			$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
-			$password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+			// $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+			// $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+			$username = $_POST['username'];
+			$password = $_POST['password'];
 			$stmt = addUser($mysqli, $username, $password);
-			$_SESSION['message'] = "User added successfully!";
 		} catch (Exception $e) {
 			handleException($e);
 			if ($stmt->errno === 1062) {  
