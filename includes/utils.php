@@ -199,11 +199,10 @@ function createPost($mysqli, $title, $details, $user_id) {
 	$mysqli->close();
 }
 
-function deletePost($mysqli, $postId) {
-    if ($postId <= 0) {
+function deletePost($mysqli, $post_id) {
+    if ($post_id <= 0) {
         throw new Exception("Invalid post ID.");
     }
-
     $sql = "DELETE FROM post WHERE id = ?";
     $stmt = $mysqli->prepare($sql);
 
@@ -211,7 +210,7 @@ function deletePost($mysqli, $postId) {
         throw new Exception("Prepare statement failed: " . $mysqli->error);
     }
 
-    $stmt->bind_param('i', $postId);
+    $stmt->bind_param('i', $post_id);
     if (!$stmt->execute()) {
         throw new Exception("Execute statement failed: " . $stmt->error);
     }
@@ -223,7 +222,8 @@ function deletePost($mysqli, $postId) {
     $mysqli->close();
 }
 function fetchPosts($mysqli) {
-    $sql = "SELECT post.*, user.username FROM post INNER JOIN user ON post.user_id = user.id";
+    $sql = "SELECT post.id AS post_id, post.title, post.details, post.date_posted, post.time_posted, post.date_edited, post.time_edited, user.username 
+            FROM post INNER JOIN user ON post.user_id = user.id";
     $query = $mysqli->query($sql);
 
     if (!$query) {
@@ -232,14 +232,16 @@ function fetchPosts($mysqli) {
     $mysqli->close();
     return $query;
 }
-function getPostData($id) {
+function getPostData($post_id) {
     $mysqli = getDbConnection();
-    $stmt = $mysqli->prepare("SELECT * FROM post WHERE id = ?");
-    $stmt->bind_param("i", $id);
+    $stmt = $mysqli->prepare("SELECT post.id AS post_id, post.title, post.details, post.date_posted, post.time_posted, post.date_edited, post.time_edited, user.username
+                             FROM post INNER JOIN user ON post.user_id = user.id 
+                             WHERE post.id = ?");
+    $stmt->bind_param("i", $post_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $mysqli->close();
-    return $result->fetch_assoc();
+    return $result;
 }
 
 function updatePostData($id, $title, $details) {
@@ -257,14 +259,14 @@ function generateTableHTML($queryResult) {
 
     while($row = $queryResult->fetch_assoc()) {
         $tableHTML .= "<tr>";
-        $tableHTML .= '<td align="center">'. htmlspecialchars($row['id']) . "</td>";
+        $tableHTML .= '<td align="center">'. htmlspecialchars($row['post_id']) . "</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['title']) . "</td>"; 
         $tableHTML .= '<td align="center">'. nl2br(htmlspecialchars($row['details'])) . "</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['date_posted']). " - ". htmlspecialchars($row['time_posted'])."</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['date_edited']). " - ". htmlspecialchars($row['time_edited']). "</td>";
         $tableHTML .= '<td align="center">'. htmlspecialchars($row['username']) . "</td>"; 
-        $tableHTML .= '<td align="center"><button onclick="location.href=\'edit.php?id='. htmlspecialchars($row['id']) .'\'" class="edit-button">Edit</button></td>';
-        $tableHTML .= '<td align="center"><button onclick="myFunction('.htmlspecialchars($row['id']).')" class="delete-button">Delete</button></td>';
+        $tableHTML .= '<td align="center"><button onclick="location.href=\'edit.php?id='. htmlspecialchars($row['post_id']) .'\'" class="edit-button">Edit</button></td>';
+        $tableHTML .= '<td align="center"><button onclick="confirmDelete('.htmlspecialchars($row['post_id']).')" class="delete-button">Delete</button></td>';
         $tableHTML .= "</tr>";
     }
 

@@ -28,7 +28,11 @@
 			<?php 	$query = fetchPosts($mysqli);
 					echo generateTableHTML($query); ?>
 		<script>
-			<button onclick="if (confirm('Are you sure you want to delete this record?')) window.location.assign('delete.php?id=' + this.id);">Delete</button>
+			function confirmDelete(post_id) {
+				if (confirm('Are you sure you want to delete this record?')) {
+					window.location.assign('delete.php?id=' + post_id);
+				}
+			}
 		</script>
 	</body>
 </html>

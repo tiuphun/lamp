@@ -12,6 +12,7 @@
 			$details = $_POST['details'];
 			$user_id = $_SESSION['user_id'];
 			createPost($mysqli, $title, $details, $user_id);
+			$_SESSION['message'] = "Post added successfully!";
 		} catch (Exception $e) {
 			handleException($e);
 		} finally {

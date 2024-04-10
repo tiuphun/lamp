@@ -7,9 +7,9 @@
     $id_exists = false;
 
     if(!empty($_GET['id'])) {
-        $id = $_GET['id'];
-        $_SESSION['id'] = $id;
-        $post = getPostData($id);
+        $post_id = $_GET['id'];
+        $_SESSION['post_id'] = $post_id;
+        $post = getPostData($post_id);
         $id_exists = !empty($post);
     }
 
@@ -31,7 +31,7 @@
         <h1 align="center">Currently Selected</h1>
         <h4>You are editing as <?php echo $user; ?></h4>
         <?php if ($id_exists): ?>
-            <?php echo generateTableHTML($query); ?>
+            <?php echo generateTableHTML($post); ?>
             <?php echo getEditPostForm(); ?>
         <?php else: ?>
             <h2 align="center">There is no data to be edited.</h2>
