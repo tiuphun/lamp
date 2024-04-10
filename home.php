@@ -4,8 +4,9 @@
 	checkLoggedInStatus();
 	displayAndClearMessages();
 
-	$user = $_SESSION['user'];
+	$username = $_SESSION['user'];
 	$usertype = $_SESSION['usertype'];
+	$user_id = $_SESSION['user_id'];
 
 	try {
 		$mysqli = getDbConnection();
@@ -22,7 +23,7 @@
 	</head>
 	<body>
 		<h1>Home</h1>
-		<h2>Hello <?php Print "$user"?>👋</h2>
+		<h2>Hello <?php Print "$username"?>👋</h2>
 			<?php echo getAddPostForm(); ?>
 		<h2 align="center">Posts</h2>
 			<?php 	$query = fetchPosts($mysqli);

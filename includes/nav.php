@@ -1,7 +1,7 @@
 <nav>
     <form action="search.php" method="GET" class="search-form">
         <div class="box">
-            <input type="text" placeholder="Search" id="search" name="query">
+            <input type="text" placeholder="Search post" id="search" name="query">
             <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
         </div>
     </form>
