@@ -8,7 +8,7 @@ function getDbConnection() {
 }
 
 function addUser($mysqli, $username, $password) {
-    if (empty($username) || empty($newPassword)) {
+    if (empty($username) || empty($password)) {
         throw new Exception("Please fill in all the fields.");
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
